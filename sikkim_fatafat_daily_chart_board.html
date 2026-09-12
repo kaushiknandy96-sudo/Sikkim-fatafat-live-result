@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sikkim Fatafat - Daily Chart Board</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;background:#eef4fb;color:#12213b}
+header{background:linear-gradient(120deg,#061b3b,#174d91);color:#fff;padding:28px 16px;text-align:center}
+header h1{margin:0;font-size:clamp(26px,6vw,44px);letter-spacing:1px}
+header p{margin:8px 0 0;font-size:15px;opacity:.9}
+nav{background:#0b2b55;display:flex;justify-content:center;flex-wrap:wrap;gap:8px;padding:12px}
+nav a{color:white;text-decoration:none;padding:10px 14px;border-radius:8px}
+nav a:hover{background:#1d4f89}
+.container{max-width:1100px;margin:24px auto;padding:0 14px}
+.hero,.card{background:#fff;border-radius:16px;box-shadow:0 5px 18px #17375e16;padding:20px;margin-bottom:20px}
+.hero{background:linear-gradient(120deg,#0c3c81,#1764bb);color:#fff}
+.hero h2{margin:0 0 8px;font-size:clamp(22px,5vw,34px)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:18px}
+label{display:block;font-weight:bold;font-size:14px;margin-bottom:6px}
+input,textarea,button{font:inherit}
+input,textarea{width:100%;padding:11px;border:1px solid #c9d5e5;border-radius:9px;background:#f8fbff}
+button{border:0;border-radius:9px;padding:11px 15px;background:#ffd21c;color:#13213b;font-weight:bold;cursor:pointer}
+button.secondary{background:#0c3c81;color:#fff}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{padding:13px 10px;border-bottom:1px solid #dce6f2;text-align:left}
+th{background:#0b2b55;color:white}
+tr:nth-child(even){background:#f7faff}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;background:#e7eef7;font-size:12px}
+.notice{font-size:13px;line-height:1.7;color:#53647a}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.preview{max-width:100%;max-height:420px;border-radius:10px;margin-top:14px;display:none}
+footer{background:#061b3b;color:#fff;text-align:center;padding:25px 15px;font-size:13px}
+.hidden{display:none}
+@media(max-width:600px){.hero,.card{padding:15px}.container{margin-top:15px}nav a{font-size:13px;padding:8px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏔️ SIKKIM FATAFAT</h1>
+  <p>Daily Information Chart Board</p>
+</header>
+
+<nav>
+  <a href="#today">আজকের চার্ট</a>
+  <a href="#archive">আর্কাইভ</a>
+  <a href="#upload">চার্ট ছবি</a>
+  <a href="#about">আমাদের সম্পর্কে</a>
+</nav>
+
+<main class="container">
+  <section class="hero">
+    <h2>Daily Chart Board</h2>
+    <p>তারিখ অনুযায়ী তথ্যভিত্তিক চার্ট দেখুন</p>
+    <div class="controls">
+      <div>
+        <label for="selectedDate">তারিখ নির্বাচন</label>
+        <input id="selectedDate" type="date" value="2026-09-12">
+      </div>
+      <div>
+        <label for="dailyNote">দিনের নোট</label>
+        <input id="dailyNote" type="text" placeholder="আজকের নোট লিখুন">
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="today">
+    <h2>📊 Daily Information Chart</h2>
+    <p class="notice">নিচের সারণিটি তথ্য প্রদর্শনের নমুনা। এখানে কোনো বাজির পূর্বাভাস বা জেতার টিপস দেওয়া হয় না।</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>সেশন</th><th>সময়</th><th>তথ্য</th><th>অবস্থা</th></tr></thead>
+        <tbody id="chartRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" id="archive">
+    <h2>🗓️ Previous Information Archive</h2>
+    <p class="notice">আগের তারিখ নির্বাচন করে তথ্য দেখার ডেমো ব্যবস্থা। স্থায়ী আর্কাইভের জন্য সার্ভার বা ডেটাবেস সংযোগ প্রয়োজন।</p>
+    <div class="controls">
+      <div>
+        <label for="archiveDate">আর্কাইভের তারিখ</label>
+        <input id="archiveDate" type="date">
+      </div>
+      <div style="display:flex;align-items:end">
+        <button id="viewArchive">তারিখ দেখুন</button>
+      </div>
+    </div>
+    <p id="archiveMessage" class="notice" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="upload">
+    <h2>📷 Daily Chart Image</h2>
+    <p class="notice">নিজের তথ্যভিত্তিক চার্টের ছবি নির্বাচন করলে এই পেজে প্রিভিউ দেখা যাবে। এটি স্থায়ীভাবে অনলাইনে সংরক্ষণ করে না।</p>
+    <label for="chartImage">চার্টের ছবি নির্বাচন করুন</label>
+    <input id="chartImage" type="file" accept="image/*">
+    <img id="imagePreview" class="preview" alt="নির্বাচিত চার্টের প্রিভিউ">
+    <p id="uploadMessage" class="notice" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="about">
+    <h2>ℹ️ About This Website</h2>
+    <p class="notice">এই ওয়েবসাইটটি সাধারণ তথ্য, তারিখভিত্তিক নোট এবং চার্টের ছবি প্রদর্শনের জন্য তৈরি। এটি কোনো জুয়া পরিচালনা, বাজির টিপস, অর্থ লেনদেন বা বাজি গ্রহণের ব্যবস্থা নয়।</p>
+  </section>
+</main>
+
+<footer>
+  <strong>SIKKIM FATAFAT</strong><br>
+  Daily Information Chart Board
+</footer>
+
+<script>
+const times=["12:00 PM","01:00 PM","02:00 PM","03:00 PM","04:00 PM","05:00 PM","06:00 PM","08:00 PM"];
+const rows=document.getElementById("chartRows");
+times.forEach((time,index)=>{
+  const tr=document.createElement("tr");
+  tr.innerHTML="<td>সেশন "+(index+1)+"</td><td>"+time+"</td><td>তথ্য নেই</td><td><span class='status'>অপেক্ষমাণ</span></td>";
+  rows.appendChild(tr);
+});
+
+document.getElementById("viewArchive").addEventListener("click",()=>{
+  const value=document.getElementById("archiveDate").value;
+  document.getElementById("archiveMessage").textContent=value
+    ?"নির্বাচিত তারিখ: "+value+"। এই ডেমোতে কোনো সংরক্ষিত আর্কাইভ নেই।"
+    :"অনুগ্রহ করে একটি তারিখ নির্বাচন করুন।";
+});
+
+document.getElementById("chartImage").addEventListener("change",event=>{
+  const file=event.target.files[0];
+  const preview=document.getElementById("imagePreview");
+  const message=document.getElementById("uploadMessage");
+  if(!file)return;
+  if(!file.type.startsWith("image/")){
+    message.textContent="শুধু ছবির ফাইল নির্বাচন করুন।";
+    return;
+  }
+  if(file.size>8*1024*1024){
+    message.textContent="ছবির আকার ৮ MB-এর মধ্যে রাখুন।";
+    return;
+  }
+  preview.src=URL.createObjectURL(file);
+  preview.style.display="block";
+  message.textContent="ছবি নির্বাচিত হয়েছে: "+file.name;
+});
+</script>
+</body>
+</html>
